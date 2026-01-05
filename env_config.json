@@ -1,0 +1,8 @@
+{
+  "__GHOST_ADMIN__": {
+    "url": "http://localhost:2368/ghost"
+  },
+  "__GHOST_FRONT__": {
+    "url": "http://localhost:2368"
+  }
+}
