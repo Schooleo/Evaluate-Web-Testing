@@ -10,8 +10,61 @@ sys.path.append(os.getcwd())
 
 from evaluate.evaluator import Evaluator
 
+def print_summary(results):
+    print("\n" + "="*80)
+    print(f"{'ID':<5} | {'Result':<10} | {'Description'}")
+    print("-" * 80)
+    for res in results:
+        status_icon = "✅ PASS" if res['success'] else "❌ FAIL"
+        # Truncate description if too long
+        desc = (res['description'][:60] + '..') if len(res['description']) > 60 else res['description']
+        print(f"{res['id']:<5} | {status_icon:<10} | {desc}")
+    print("="*80)
+    
+    total = len(results)
+    passed = sum(1 for r in results if r['success'])
+    print(f"Total: {total} | Passed: {passed} | Section Completion Rate: {(passed/total)*100:.1f}%")
+
+def run_task(task, evaluator, driver, env_config):
+    print(f"\n--- Task {task['task_id']} ---")
+    print(f"Description: {task['task_description']}")
+    
+    # Resolve start URL
+    start_url_key = task['start_url']
+    start_url = start_url_key
+    if start_url_key in env_config:
+         start_url = env_config[start_url_key]['url']
+
+    print(f"Start URL: {start_url}")
+
+    try:
+        # Navigate
+        if start_url.startswith("http"):
+             driver.get(start_url)
+        else:
+             print(f"Warning: Could not resolve valid start URL from {start_url_key}")
+        
+        if task.get("require_login"):
+            print("(!) Note: This task requires login.")
+
+        # ACTION
+        print(f"\n[ACTION REQUIRED] Perform: {task['task_description']}")
+        input("Press Enter when done...")
+
+        # EVAL
+        print("Evaluating...")
+        success = evaluator.evaluate_with_selenium(task['task_id'], browser=driver)
+        if success:
+            print("✅ PASSED")
+        else:
+            print("❌ FAILED")
+            
+        return success
+    except Exception as e:
+        print(f"Error running task: {e}")
+        return False
+
 def main():
-    # 1. Load configuration and tasks
     try:
         with open('env_config.json', 'r') as f:
             env_config = json.load(f)
@@ -21,73 +74,50 @@ def main():
         print(f"Error loading files: {e}")
         return
 
-    # 2. Initialize Evaluator
     evaluator = Evaluator(tasks)
-
-    # 3. Ask user which task to run
+    
     print(f"Loaded {len(tasks)} tasks.")
-    task_id = input("Enter Task ID to run (e.g., 1): ").strip()
-    
-    task = next((t for t in tasks if t['task_id'] == task_id), None)
-    
-    if not task:
-        print(f"Task {task_id} not found.")
-        return
+    choice = input("Enter Task ID to run, or 'all' to run sequence: ").strip()
 
-    print(f"\n--- Task {task_id} ---")
-    print(f"Description: {task['task_description']}")
-    
-    # Resolve start URL
-    start_url_key = task['start_url']
-    start_url = start_url_key
-    
-    # Check if key exists in env_config
-    if start_url_key in env_config:
-         start_url = env_config[start_url_key]['url']
+    tasks_to_run = []
+    if choice.lower() == 'all':
+        tasks_to_run = tasks
+    else:
+        task = next((t for t in tasks if t['task_id'] == choice), None)
+        if task:
+            tasks_to_run = [task]
+        else:
+            print(f"Task {choice} not found.")
+            return
 
-    print(f"Start URL: {start_url}")
-
-    # 4. Initialize WebDriver (Chrome)
+    # Init Browser Once
     print("\nLaunching Browser...")
     chrome_options = Options()
     # chrome_options.add_argument("--headless") 
     driver = webdriver.Chrome(options=chrome_options)
-    
+
+    results = []
+
     try:
-        # 5. Navigate to start
-        if start_url.startswith("http"):
-            driver.get(start_url)
-        else:
-            print(f"Warning: Could not resolve valid start URL from {start_url_key}")
-
-        # Handle explicit login requirement mention
-        if task.get("require_login"):
-            print("\n*** NOTE: This task requires you to be LOGGED IN. ***")
-            print("If you are not logged in, please log in manually first (admin@example.com / password).")
-
-        # 6. ACTION PHASE
-        print("\n" + "="*50)
-        print(f"ACTION REQUIRED: Please perform the task in the opened browser window.")
-        print(f"Task: {task['task_description']}")
-        print("="*50)
-        
-        input("\nPress Enter here once you have completed the task in the browser...")
-
-        # 7. EVALUATION PHASE
-        print("\nRunning Evaluation...")
-        success = evaluator.evaluate_with_selenium(task_id, browser=driver)
-        
-        if success:
-            print("\n✅ PASSED!")
-        else:
-            print("\n❌ FAILED")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
+        for task in tasks_to_run:
+            success = run_task(task, evaluator, driver, env_config)
+            results.append({
+                "id": task['task_id'],
+                "description": task['task_description'],
+                "success": success
+            })
+            
+            if len(tasks_to_run) > 1 and task != tasks_to_run[-1]:
+                cont = input("\nProceed to next task? (Y/n): ")
+                if cont.lower() == 'n':
+                    break
+    
     finally:
-        # Keep browser open for a moment or close depending on preference
-        # driver.quit()
+        # driver.quit() # Optional: close browser
         pass
+    
+    # Print Summary Table
+    print_summary(results)
 
 if __name__ == "__main__":
     main()
