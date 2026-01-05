@@ -1,3 +1,7 @@
+# Ignore ghost logs and db
+app/content/logs
+app/content/data
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
