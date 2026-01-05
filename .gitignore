@@ -1,6 +1,7 @@
-# Ignore ghost logs and db
+# Ignore ghost logs, db and themes
 app/content/logs
 app/content/data
+app/content/themes
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
