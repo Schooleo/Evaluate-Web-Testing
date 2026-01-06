@@ -1,7 +1,7 @@
 [
   {
     "task_id": "1",
-    "task_description": "Log in to the Ghost Admin panel with email 'admin@example.com' and password 'password'.",
+    "task_description": "Log in to the Ghost Admin panel with email 'admin@example.com' and password 'VeryAwesomeAdminGuy123@'.",
     "task_type": "form",
     "start_url": "__GHOST_ADMIN__",
     "require_login": false,
