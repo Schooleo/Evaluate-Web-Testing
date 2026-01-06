@@ -41,10 +41,10 @@
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
-        "dom_extractor": "document.querySelector('.gh-publish-menu-trigger').innerText",
+        "dom_extractor": "document.body.innerText",
         "match_type": "contains",
-        "match_value": "Update",
-        "description": "Verify the publish button indicates the post is published (Update status)."
+        "match_value": "Boom! It's out there.",
+        "description": "Verify the publication success modal appears with text 'Boom! It's out there.'."
       }
     }
   },

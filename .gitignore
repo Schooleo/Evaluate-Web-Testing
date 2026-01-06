@@ -3,6 +3,10 @@ app/content/logs
 app/content/data
 app/content/themes
 
+# Ignore results.json and pngs
+results.json
+*.png
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
