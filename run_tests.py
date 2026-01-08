@@ -30,21 +30,17 @@ def main():
         headless=args.headless
     )
 
-    try:
-        tester.start_driver()
-        results = tester.run_tests(task_ids=task_ids)
-        
-        # Summary
-        print("\n" + "="*60)
-        print(f"{'ID':<5} | {'Result':<10} | {'File'}")
-        print("-" * 60)
-        for res in results:
-            status_icon = "✅ PASS" if res['success'] else "❌ FAIL"
-            print(f"{res['id']:<5} | {status_icon:<10} | {res['file']}")
-        print("="*60)
-        
-    finally:
-        tester.stop_driver()
+    # Run tests (driver lifecycle managed internally)
+    results = tester.run_tests(task_ids=task_ids)
+    
+    # Summary
+    print("\n" + "="*60)
+    print(f"{'ID':<5} | {'Result':<10} | {'File'}")
+    print("-" * 60)
+    for res in results:
+        status_icon = "✅ PASS" if res['success'] else "❌ FAIL"
+        print(f"{res['id']:<5} | {status_icon:<10} | {res['file']}")
+    print("="*60)
 
 if __name__ == "__main__":
     main()

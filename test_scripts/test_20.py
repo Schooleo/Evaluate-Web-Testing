@@ -1,14 +1,9 @@
+from evaluate.test_abstract import TestScript
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 
-class TaskScript:
-    def __init__(self, driver, env_config):
-        self.driver = driver
-        self.env_config = env_config
-        self.wait = WebDriverWait(self.driver, 10)
-
+class TaskScript(TestScript):
     def action(self):
         """
         Logic to perform the logout.

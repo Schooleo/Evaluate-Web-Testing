@@ -39,9 +39,12 @@ Your primary job is to systematically convert each task in `dataset/tasks.json` 
 ### Step 4: Verify & Iterate
 - Run the test: `python3 run_tests.py --task_id <ID>`
 - If `❌ FAIL`:
-    - Read the error/screenshot.
-    - Debug using your Browser Tool.
-    - Update the script.
+    - **Self-Correction Policy**: You are authorized to fix your own mistakes.
+    - Read the error trace or failure screenshot (if available).
+    - Analyze if the specific DOM selector failed or if the wait time was too short.
+    - **Edit the script** to fix the issue.
+    - **Retry Limit**: You may attempt to fix and re-run the test up to **3 times**.
+    - If it still fails after 3 attempts, mark it as FAILED and move on.
 - If `✅ PASS`:
     - Move to the next task.
 
