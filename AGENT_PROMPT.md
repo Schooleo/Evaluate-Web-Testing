@@ -12,7 +12,16 @@ The goal is **NOT** to manually perform tests, but to **engineer automated Pytho
 
 ## 2. Agent Workflow Protocol
 
-Your primary job is to systematically convert each task in `dataset/tasks.json` into a working Python automation script.
+### ⚠️ Critical Constraints
+1. **Retry Limit**: You have a maximum of **3 attempts** to fix a failing test script. If it fails 3 times, move on.
+2. **Verification Standard**: The `verify()` method **MUST** strictly base its logic on `evaluate.evaluator.py` and `evaluate.matchers.py`.
+    - Retrieve the `eval` object from `dataset/tasks.json` for the specific task.
+    - Import the appropriate Matcher (e.g., `from evaluate.matchers import DOMMatcher`).
+    - Use the matcher to validate the result. **Do NOT use ad-hoc assertions.**
+3. **Credentials**: If a task requires login, you **MUST** retrieve the username and password from the `env_config.json` (available as `self.env_config` in the script). Do NOT hardcode credentials.
+4. **Dynamic Evaluation**: Do NOT hardcode evaluation parameters (like `match_value`) in `verify()`. You **MUST** read `dataset/tasks.json`, find the current task by its ID, and extract the `eval` configuration dynamically.
+5. **Clean test script**: Do NOT write any comments in the test script.
+6. **Virtual Environment**: You **MUST** use a virtual environment to run the tests. Do NOT use a global environment.
 
 ### Step 1: Analyze the Task
 - Read `dataset/tasks.json`.
@@ -33,7 +42,7 @@ Your primary job is to systematically convert each task in `dataset/tasks.json` 
 - **Strictly Follow** the format defined in `test_scripts/REQUIREMENTS.md`.
 - Implement two methods:
     - `action(self)`: All Selenium commands to reach the state.
-    - `verify(self)`: Selenium commands to return `True` or `False`.
+    - `verify(self)`: **MUST** use `evaluate.matchers` as defined in Critical Constraints.
 - **Constraint**: The script must be self-contained. If the task requires login, the script must handle login (or check if already logged in) within `action()`.
 
 ### Step 4: Verify & Iterate
