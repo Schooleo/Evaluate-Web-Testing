@@ -1,83 +1,82 @@
-# Evaluate-Web-Testing
+# Agentic Web Testing Framework
 
-This repository contains the evaluation infrastructure for testing web agents against **Ghost CMS**. It is based on the WebAppEval benchmark structure.
+This repository hosts the evaluation infrastructure for testing web agents against **Ghost CMS**. It uses a robust, modular **Automation Tester** architecture designed for End-to-End (E2E) verification.
 
-## Directory Structure
+## 📂 Directory Structure
 
-- `app/`: Contains the Docker Compose configuration for Ghost CMS.
-- `dataset/`: Contains `tasks.json` with 20 evaluation tasks.
-- `evaluate/`: Contains the evaluation logic (matchers, evaluator).
-- `run_eval_example.py`: A helper script to interactively run and verify tasks.
-- `env_config.json`: Configuration for target environment URLs.
+*   `app/`: Docker Compose configuration for the Ghost CMS target application.
+*   `dataset/`: Contains `tasks.json` (The source of truth for task definitions).
+*   `evaluate/`: Core framwork logic.
+    *   `automation_tester.py`: The test runner engine.
+    *   `evaluator.py`, `matchers.py`: Helper classes for verification.
+*   `test_scripts/`: **[WORK AREA]** Contains the Python automation scripts (`test_<id>.py`).
+*   `run_tests.py`: CLI entry point to execute tests.
+*   `env_config.json`: Environment URLs configuration.
 
-## Prerequisites
+## 🚀 Setup
 
-- **Docker** & **Docker Compose**: To run the Ghost CMS application.
-- **Python 3.x**: To run the evaluation script.
-- **Selenium**: `pip install selenium`
-
-## Setup
-
-1.  **Start the Application Environment**:
-    Navigate to the `app` directory and start the containers.
-
-    ```bash
-    cd app
-    docker compose up -d
-    ```
-
-    Wait a moment for Ghost CMS to Initialize. You can access it at:
-
-    - Frontend: [http://localhost:8080](http://localhost:8080)
-    - Admin Panel: [http://localhost:8080/ghost](http://localhost:8080/ghost)
-      - **Email**: `admin@example.com` (you may need to set this up on first run)
-      - **Password**: `password` (you may need to set this up on first run)
-
-    > **Note**: If this is the _very first time_ running Ghost, you might need to go to [http://localhost:8080/ghost](http://localhost:8080/ghost) and create the initial admin account manually to match the credentials expected by the tasks (User: `admin@example.com`, Pass: `password`), or update `dataset/tasks.json` to match your credentials.
-
-2.  **Install Python Dependencies**:
-    ```bash
-    pip install selenium
-    ```
-
-## Running Evaluation
-
-We provide an interactive script `run_eval_example.py` that allows you to act as the "Agent" (or hook up your own agent) to perform tasks and verify them.
-
-1.  **Run the script**:
-
-    ```bash
-    python run_eval_example.py
-    ```
-
-2.  **Select a Task**:
-    The script will prompt you for a **Task ID** (1-20). Refer to `dataset/tasks.json` for details.
-3.  **Perform the Action**:
-    A Chrome browser window will open controlled by Selenium.
-    - Read the task description in your terminal.
-    - Perform the required action manually in the browser.
-4.  **Verify**:
-    Return to your terminal and press **Enter**. The script will run the configured matchers (URL, String, DOM, etc.) and report `✅ PASSED` or `❌ FAILED`.
-
-## Adding New Tasks
-
-To add new tasks, edit `dataset/tasks.json`. Each task follows this schema:
-
-```json
-{
-  "task_id": "21",
-  "task_description": "Description of what to do",
-  "task_type": "operation",
-  "start_url": "__GHOST_ADMIN__",
-  "eval": {
-    "eval_type": ["dom_match"],
-    "dom_match": {
-      "url": "last",
-      "dom_extractor": "document.body.innerText",
-      "match_type": "contains",
-      "match_value": "Success Message",
-      "description": "Verify that the success message is visible."
-    }
-  }
-}
+### 1. Start the Target Application (Ghost CMS)
+```bash
+cd app
+docker compose up -d
 ```
+*   **Frontend**: [http://localhost:2368](http://localhost:2368)
+*   **Admin Panel**: [http://localhost:2368/ghost](http://localhost:2368/ghost)
+    *   *Credentials*: `admin@example.com` / `VeryAwesomeAdminGuy123@`
+
+### 2. Install Dependencies
+```bash
+pip install selenium
+```
+
+## 🛠️ Usage
+
+### Running Tests
+The framework uses `run_tests.py` to discover and execute scripts.
+
+**Run All Tests:**
+```bash
+python3 run_tests.py --task_id all
+```
+
+**Run Specific Test(s):**
+```bash
+# Single ID
+python3 run_tests.py --task_id 20
+
+# Multiple IDs
+python3 run_tests.py --task_id "1, 20"
+```
+
+**Debug Mode (Visible Browser):**
+```bash
+python3 run_tests.py --task_id 20 --no-headless
+```
+
+## ✍️ Contribution Workflow
+
+### Anatomy of a Test
+Each task in `dataset/tasks.json` must have a corresponding script in `test_scripts/` with the filename format `test_<id>.py`.
+
+**Example: `test_scripts/test_20.py`**
+```python
+class TaskScript:
+    def __init__(self, driver, env_config):
+        self.driver = driver
+        self.env_config = env_config
+
+    def action(self):
+        # 1. Perform the task (e.g., Logout)
+        self.driver.get(...)
+        self.driver.find_element(...).click()
+
+    def verify(self):
+        # 2. Verify the result
+        return "/signin" in self.driver.current_url
+```
+
+### Creating a New Test
+1.  Read the task requirement in `dataset/tasks.json`.
+2.  Create `test_scripts/test_<id>.py`.
+3.  Implement the `scan -> action -> verify` logic.
+4.  Run `python3 run_tests.py --task_id <id>` to validate.
