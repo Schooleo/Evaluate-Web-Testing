@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
-from selenium.webdriver.support.ui import WebDriverWait
 
 class TestScript(ABC):
-    def __init__(self, driver, env_config):
-        self.driver = driver
+    def __init__(self, page, env_config):
+        self.page = page
         self.env_config = env_config
-        self.wait = WebDriverWait(self.driver, 10)
 
     @abstractmethod
     def action(self):

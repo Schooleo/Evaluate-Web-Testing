@@ -11,9 +11,9 @@ class Evaluator:
             "semantic_match": SemanticMatcher()
         }
 
-    def evaluate_with_selenium(self, task_id, browser):
+    def evaluate(self, task_id, page):
         """
-        Evaluate a task using a Selenium WebDriver instance.
+        Evaluate a task using a Playwright Page instance.
         """
         task = next((t for t in self.tasks if t['task_id'] == task_id), None)
         if not task:
@@ -29,12 +29,12 @@ class Evaluator:
              # Handle list of criteria if needed (AND logic)
              results = []
              for criteria in eval_config:
-                 results.append(self._check_criteria(criteria, browser))
+                 results.append(self._check_criteria(criteria, page))
              return all(results)
         else:
-             return self._check_criteria(eval_config, browser)
+             return self._check_criteria(eval_config, page)
 
-    def _check_criteria(self, criteria, browser):
+    def _check_criteria(self, criteria, page):
         eval_type = criteria.get("eval_type", []) # e.g. ["dom_match"]
         
         # eval_type can be a list or string (normalize to list)
@@ -52,7 +52,7 @@ class Evaluator:
             matcher_config = criteria.get(et)
             if matcher_config:
                 print(f"Running {et}: {matcher_config.get('description', '')}")
-                score = matcher.match(browser, matcher_config)
+                score = matcher.match(page, matcher_config)
                 success = score >= 1.0
                 if success:
                      print(f"  -> Pass ({score})")

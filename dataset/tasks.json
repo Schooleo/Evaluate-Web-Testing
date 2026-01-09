@@ -1,16 +1,16 @@
 [
   {
     "task_id": "1",
-    "task_description": "Log in to the Ghost Admin panel.",
-    "task_type": "form",
-    "start_url": "__GHOST_ADMIN__",
+    "task_description": "Navigate to About page",
+    "task_type": "navigation",
+    "start_url": "__GHOST_FRONT__",
     "require_login": false,
     "eval": {
       "eval_type": ["url_match"],
       "url_match": {
         "match_type": "contains",
-        "match_value": "/ghost/#/dashboard",
-        "description": "Verify that the URL contains the dashboard path after login."
+        "match_value": "/about",
+        "description": "Verify that the URL contains /about."
       }
     }
   },
@@ -104,11 +104,13 @@
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
     "eval": {
-      "eval_type": ["string_match"],
-      "string_match": {
-        "match_type": "contains",
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "last",
+        "dom_extractor": "document.querySelector('input[name=\"description\"]').value",
+        "match_type": "exact_match",
         "match_value": "Testing Ghost CMS",
-        "description": "Verify that page text contains the new description."
+        "description": "Verify that the description input contains the new description."
       }
     }
   },
@@ -188,10 +190,10 @@
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
-        "dom_extractor": "document.body.innerText",
+        "dom_extractor": "document.querySelector('#member-note').value",
         "match_type": "contains",
         "match_value": "VIP",
-        "description": "Verify the note content is visible."
+        "description": "Verify the note content is visible in the input field."
       }
     }
   },
@@ -205,10 +207,10 @@
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
-        "dom_extractor": "document.body.innerText",
-        "match_type": "contains",
-        "match_value": "John Doe",
-        "description": "Verify John Doe is still visible if deletion failed."
+        "dom_extractor": "document.body.innerText.includes('John Doe') ? 'Present' : 'Deleted'",
+        "match_type": "exact_match",
+        "match_value": "Deleted",
+        "description": "Verify John Doe is no longer visible."
       }
     }
   },
@@ -256,10 +258,10 @@
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
-        "dom_extractor": "document.querySelector('body').innerText",
-        "match_type": "contains",
+        "dom_extractor": "(() => { const label = Array.from(document.querySelectorAll('label')).find(l => l.innerText.trim().includes('Full name')); if (!label) return null; const input = document.getElementById(label.getAttribute('for')) || label.querySelector('input') || label.parentElement.querySelector('input'); return input ? input.value : null; })()",
+        "match_type": "exact_match",
         "match_value": "Admin User",
-        "description": "Verify new name is present in the body."
+        "description": "Verify new name is present in the input field."
       }
     }
   },
