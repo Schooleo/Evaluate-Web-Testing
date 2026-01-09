@@ -2,6 +2,7 @@ import os
 import subprocess
 import time
 import sys
+import requests
 
 def run_command(command):
     print(f"Running: {command}")
