@@ -1,65 +1,115 @@
-from abc import ABC, abstractmethod
-from urllib.parse import urlparse
-import time
+import difflib
+from dotenv import load_dotenv
+import os
+import google.generativeai as genai
+import unicodedata
 
-class Matcher(ABC):
-    @abstractmethod
-    def match(self, page, config):
-        pass
+def exact(value, target):
+    value = normalize(value)
+    target = normalize(target)
+    print(f"[exact] target: {target}, value: {value}")
+    return value == target
 
-class StringMatcher(Matcher):
-    def match(self, page, config):
-        target = config.get("match_value")
-        # heuristic: check body text
-        body_text = page.inner_text("body")
-        if config.get("match_type") == "contains":
-            return 1.0 if target in body_text else 0.0
-        elif config.get("match_type") == "exact":
-            return 1.0 if target == body_text else 0.0
-        return 0.0
+def contains(value, target):
+    """
+    Check if the target is contained within the values.
+    """
+    print(f"[contains] Comparing: {repr(target)} vs {repr(value)}")
+    if not value or not target:
+        return False
+    value = normalize(value)
+    target = normalize(target)
+    return target in value
 
-class URLMatcher(Matcher):
-    def match(self, page, config):
-        current_url = page.url
-        expected = config.get("match_value")
-        match_type = config.get("match_type", "exact")
+def semantic(task_description, value, target, method="llm"):    
+    if method == "llm":
+        # TODO: gọi OpenAI API hoặc vector DB
+
+        if not load_dotenv():
+            raise Exception("Failed to load environment variables")
+
+        api_key = os.getenv("GOOGLE_API_KEY")
         
-        if match_type == "exact":
-            return 1.0 if current_url == expected else 0.0
-        elif match_type == "contains":
-            return 1.0 if expected in current_url else 0.0
-        elif match_type == "path":
-             return 1.0 if urlparse(current_url).path == expected else 0.0
-        return 0.0
+        if not api_key:
+            raise Exception("GOOGLE_API_KEY not found in environment variables")
 
-class DOMMatcher(Matcher):
-    def match(self, page, config):
-        url_condition = config.get("url")
-        # if url_condition == "last" or not url_condition: pass
+        genai.configure(api_key=api_key)
         
-        extractor_js = config.get("dom_extractor")
-        match_type = config.get("match_type")
-        match_value = config.get("match_value")
-        
+        prompt = f"""
+            You are a helpful evaluator.
+            Task: "{task_description}"
+            Expected answer: "{target}"
+            Agent answer: "{value}"
+            Are they semantically equivalent in the task context? 
+            Reply only YES or NO.
+        """
+        print(f"[semantic] LLM prompt: {prompt}")
         try:
-            # Playwright evaluate handles JS execution
-            extracted_value = page.evaluate(f"() => {extractor_js}")
-            if extracted_value is None:
-                return 0.0
-            
-            if match_type == "contains":
-                return 1.0 if match_value in str(extracted_value) else 0.0
-            elif match_type == "exact_match" or match_type == "exact":
-                return 1.0 if str(extracted_value) == match_value else 0.0
-            elif match_type == "not_null":
-                return 1.0 if extracted_value else 0.0
-                
-            return 0.0
+            model = genai.GenerativeModel('gemini-2.0-flash')
+            response = model.generate_content(prompt)
+            if response.text.strip().upper() in ["YES", "NO"]:
+                # Trả về True nếu trả lời là YES, False nếu NO
+                print(f"[semantic] LLM response: {response.text.strip()}")
+            return response.text.strip().upper() == "YES"
         except Exception as e:
-            print(f"DOM Match Error: {e}")
-            return 0.0
+            print(f"[semantic] LLM Error: {e}")
+            return False
 
-class SemanticMatcher(Matcher):
-    def match(self, page, config):
-        print("Semantic Matcher used - returning 1.0 (Mock)")
-        return 1.0
+    elif method == "fuzzy":
+        ratio = difflib.SequenceMatcher(None, value, target).ratio()
+        if ratio >= 0.8:
+            return True
+    return False
+
+def starts_with(values, target):
+    """
+    Check if the values start with the target.
+    """
+    return values.startswith(target)
+
+def ends_with(values, target):
+    """
+    Check if the values end with the target.
+    """
+    return values.endswith(target)
+
+def check_contains(agent_value, match_value):
+    """
+    Checks if agent_value contains match_value.
+    - If match_value is a string: return contains(agent_value, match_value)
+    - If match_value is a list: check all items
+    """
+    print(f"[check_contains] agent_value: {agent_value}, match_value: {match_value}")
+    if isinstance(match_value, str):
+        return contains(agent_value, match_value)
+    elif isinstance(match_value, list):
+        if not match_value:
+            print("match_value list is empty")
+            return False
+        for item in match_value:
+            if not contains(agent_value, item):
+                print(f"Contains check failed for item: {item}")
+                return False
+        return True
+    else:
+        print(f"Unsupported match_value type: {type(match_value)}")
+        return False
+
+def normalize(text):
+    """
+    Chuẩn hóa chuỗi để so sánh:
+    - Ép về str
+    - Chuẩn hóa unicode (NFKC)
+    - Thay non-breaking space (U+00A0) bằng space thường
+    - Bỏ zero-width space, BOM
+    - strip() để bỏ khoảng trắng đầu/cuối
+    """
+    if text is None:
+        return ""
+    return (
+        unicodedata.normalize("NFKC", str(text))
+        .replace('\xa0', ' ')     # non-breaking space → space
+        .replace('\u200b', '')    # zero-width space
+        .replace('\ufeff', '')    # BOM
+        .strip()
+    )

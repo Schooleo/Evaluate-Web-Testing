@@ -40,18 +40,15 @@ description: Mandatory workflow for task analysis, browser research, script impl
 
 1.  **Constraint**: Create **exactly one** Playwright script: `test_scripts/test_<TASK_ID>.py`.
 2.  **Constraint**: Follow `test_scripts/REQUIREMENTS.md` **exactly**.
-3.  **Constraint**: Implement **exactly two** methods:
+3.  **Constraint**: Implement **exactly one** method:
     - `action(self)`
-    - `verify(self)`
 4.  `action(self)`:
     - **Content**: Contains **all** browser automation logic.
-    - **Responsibility**: Handles navigation, login (if required), and user interactions.
+    - **Responsibility**: Handles navigation, login (**CRITICAL** if require_login equals true), and user interactions.
     - **Prohibition**: **MUST NOT** perform validation.
-    - **CRITICAL**: **MUST** use `page.wait_for_load_state("networkidle")` or `page.wait_for_selector(...)` after any action that triggers navigation or DOM updates (including "signin" redirection). Do NOT rely on implicit waits.
+    - **CRITICAL**: **MUST** use `page.wait_for_load_state("networkidle")` or `page.wait_for_selector(...)` after any action that triggers navigation or DOM updates (**including starting "signin" redirection**). Do NOT rely on implicit waits.
 5.  `verify(self)`:
-    - **Content**: Uses **ONLY** `evaluate.matchers`.
-    - **Input**: Reads evaluation configuration **dynamically** from `dataset/tasks.json` via `self.env_config` or passed arguments (via `Evaluator`).
-    - **Output**: Performs final validation returning `True` or `False`.
+    - **Content**: Uses the **EXACT SAME SETUP** as `test_scripts/REQUIREMENTS.md`.
 6.  **Ensure**:
     - **CRITICAL**: **No comments**.
     - **CRITICAL**: **No hardcoded values**.

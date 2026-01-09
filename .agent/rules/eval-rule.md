@@ -43,7 +43,7 @@ description: Non-negotiable rules governing automated web test generation, execu
 ### 7. Script Scope and Isolation
 
 - **Constraint**: Each script **MUST** be fully self-contained.
-- **Constraint**: If login/setup is required, it **MUST** be performed within the `action()` method of that specific script.
+- **Constraint**: If login/setup is required, it **MUST** be performed within the `action()` method of that specific script, with proper wait times.
 - **Constraint**: Shared state, external dependencies, or reliance on previous test runs is **FORBIDDEN**.
 
 ### 8. Structural Compliance
@@ -51,12 +51,12 @@ description: Non-negotiable rules governing automated web test generation, execu
 - **Constraint**: You **MUST** create **exactly one** Playwright script per task named `test_scripts/test_<TASK_ID>.py`.
 - **Constraint**: You **MUST** strictly adhere to the class structure defined in `test_scripts/REQUIREMENTS.md`.
 - **Constraint**: The class **MUST** be named `TaskScript`.
-- **Constraint**: The class **MUST** implement **exactly two** methods: `action(self)` and `verify(self)`.
-- **Constraint**: The `__init__` method **MUST** accept `(self, page, env_config)`.
+- **Constraint**: The class **MUST** implement **exactly one** method: `action(self)`.
+- **Constraint**: The `verify(self)` method **MUST** follow the same setup as `test_scripts/REQUIREMENTS.md`.
 
 ### 9. Browser Interaction and Logic Separation
 
 - **Constraint**: The `action(self)` method **MUST** contain **all** browser automation logic (navigation, login, interactions).
 - **Constraint**: The `action(self)` method **MUST NOT** perform any validation or verification.
-- **Constraint**: You **MUST** use `page.wait_for_load_state("networkidle")` or `page.wait_for_selector(...)` after any action that triggers navigation or DOM updates.
+- **Constraint**: You **MUST** use `page.wait_for_load_state("networkidle")` or `page.wait_for_selector(...)` after any action that triggers navigation or DOM updates, **including starting "signin" redirection**.
 - **Constraint**: Reliance on implicit waits is **FORBIDDEN**.

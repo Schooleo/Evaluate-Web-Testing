@@ -16,6 +16,8 @@ All test scripts in this directory must adhere to the following conventions to b
 Each script **must** define a class named `TaskScript` with the following structure:
 
 ```python
+from evaluate.evaluator import Evaluator
+
 class TaskScript:
     def __init__(self, page, env_config):
         """
@@ -36,5 +38,6 @@ class TaskScript:
         Returns:
             bool: True if pass, False if fail.
         """
-        return True
+        evaluator = Evaluator()
+        return evaluator.evaluate(task_id="<id>", page=self.page)
 ```

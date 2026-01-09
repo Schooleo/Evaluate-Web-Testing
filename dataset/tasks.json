@@ -1,42 +1,29 @@
 [
   {
     "task_id": "1",
-    "task_description": "Navigate to About page",
-    "task_type": "navigation",
-    "start_url": "__GHOST_FRONT__",
-    "require_login": false,
-    "eval": {
-      "eval_type": ["url_match"],
-      "url_match": {
-        "match_type": "contains",
-        "match_value": "/about",
-        "description": "Verify that the URL contains /about."
-      }
-    }
-  },
-  {
-    "task_id": "2",
     "task_description": "Create a new post with title 'My First Post' and content 'Hello Ghost'. Do not publish it yet.",
     "task_type": "operation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
         "dom_extractor": "document.querySelector('.gh-editor-title').value",
-        "match_type": "exact_match",
+        "match_type": "exact",
         "match_value": "My First Post",
         "description": "Verify the post title in the editor."
       }
     }
   },
   {
-    "task_id": "3",
+    "task_id": "2",
     "task_description": "Publish the post titled 'My First Post'.",
     "task_type": "operation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
@@ -49,15 +36,16 @@
     }
   },
   {
-    "task_id": "4",
-    "task_description": "Navigate to the home page and verify 'My First Post' is visible.",
+    "task_id": "3",
+    "task_description": "Navigate to the home page.",
     "task_type": "navigation",
     "start_url": "__GHOST_FRONT__",
     "require_login": false,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
-        "url": "last",
+        "url": "__GHOST_FRONT__",
         "dom_extractor": "document.body.innerText",
         "match_type": "contains",
         "match_value": "My First Post",
@@ -66,11 +54,12 @@
     }
   },
   {
-    "task_id": "5",
+    "task_id": "4",
     "task_description": "Create a new static page with title 'About Us'.",
     "task_type": "operation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["url_match"],
       "url_match": {
@@ -81,62 +70,28 @@
     }
   },
   {
+    "task_id": "5",
+    "task_description": "Navigate to About page.",
+    "task_type": "navigation",
+    "start_url": "__GHOST_FRONT__",
+    "require_login": false,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["url_match"],
+      "url_match": {
+        "match_type": "contains",
+        "match_value": "/about",
+        "description": "Verify that the URL contains /about."
+      }
+    }
+  },
+  {
     "task_id": "6",
-    "task_description": "Update the site title to 'Agentic Web' in Settings -> General.",
-    "task_type": "form",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["dom_match"],
-      "dom_match": {
-        "url": "last",
-        "dom_extractor": "document.title",
-        "match_type": "contains",
-        "match_value": "Agentic Web",
-        "description": "Verify document title reflects new site title."
-      }
-    }
-  },
-  {
-    "task_id": "7",
-    "task_description": "Update the site description to 'Testing Ghost CMS'.",
-    "task_type": "form",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["dom_match"],
-      "dom_match": {
-        "url": "last",
-        "dom_extractor": "document.querySelector('input[name=\"description\"]').value",
-        "match_type": "exact_match",
-        "match_value": "Testing Ghost CMS",
-        "description": "Verify that the description input contains the new description."
-      }
-    }
-  },
-  {
-    "task_id": "8",
-    "task_description": "Invite a new staff user with email 'editor@example.com' with role 'Editor'.",
-    "task_type": "form",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["dom_match"],
-      "dom_match": {
-        "url": "last",
-        "dom_extractor": "document.body.innerText",
-        "match_type": "contains",
-        "match_value": "editor@example.com",
-        "description": "Verify the invited email appears in the list."
-      }
-    }
-  },
-  {
-    "task_id": "9",
     "task_description": "Create a new tag named 'Tech'.",
     "task_type": "operation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["url_match"],
       "url_match": {
@@ -147,11 +102,12 @@
     }
   },
   {
-    "task_id": "10",
+    "task_id": "7",
     "task_description": "Add the 'Tech' tag to 'My First Post'.",
     "task_type": "operation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
@@ -164,15 +120,68 @@
     }
   },
   {
+    "task_id": "8",
+    "task_description": "Unpublish the post 'My First Post' (Revert to draft).",
+    "task_type": "operation",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "last",
+        "dom_extractor": "Array.from(document.querySelectorAll('li.gh-posts-list-item')).find(li => li.querySelector('.gh-content-entry-title')?.innerText.trim() === 'My First Post')?.querySelector('.gh-content-entry-status')?.innerText.trim()",
+        "match_type": "contains",
+        "match_value": "Draft",
+        "description": "Verify the post status badge says 'Draft'."
+      }
+    }
+  },
+  {
+    "task_id": "9",
+    "task_description": "Delete the post 'My First Post'.",
+    "task_type": "operation",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["url_match"],
+      "url_match": {
+        "match_type": "contains",
+        "match_value": "/posts",
+        "description": "Verify redirection to posts list after deletion."
+      }
+    }
+  },
+  {
+    "task_id": "10",
+    "task_description": "Search for 'About Us' using the global search.",
+    "task_type": "navigation",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "last",
+        "dom_extractor": "document.querySelector('textarea.gh-editor-title')?.value",
+        "match_type": "exact",
+        "match_value": "About Us",
+        "description": "Verify the editor title matches 'About Us'."
+      }
+    }
+  },
+  {
     "task_id": "11",
     "task_description": "Create a new member 'John Doe' with email 'john@example.com'.",
     "task_type": "form",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
-        "url": "last",
+        "url": "__GHOST_ADMIN__/members",
         "dom_extractor": "document.body.innerText",
         "match_type": "contains",
         "match_value": "john@example.com",
@@ -186,6 +195,7 @@
     "task_type": "form",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
@@ -203,12 +213,13 @@
     "task_type": "operation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
-        "url": "last",
+        "url": "__GHOST_ADMIN__/members",
         "dom_extractor": "document.body.innerText.includes('John Doe') ? 'Present' : 'Deleted'",
-        "match_type": "exact_match",
+        "match_type": "exact",
         "match_value": "Deleted",
         "description": "Verify John Doe is no longer visible."
       }
@@ -216,15 +227,88 @@
   },
   {
     "task_id": "14",
-    "task_description": "Add a new navigation item 'Portfolio' pointing to '/portfolio'.",
+    "task_description": "Invite a new staff user with email 'editor@example.com' with role 'Editor'.",
     "task_type": "form",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "__GHOST_ADMIN__/settings/staff",
+        "dom_extractor": "document.body.innerText",
+        "match_type": "contains",
+        "match_value": "editor@example.com",
+        "description": "Verify the invited email appears in the list."
+      }
+    }
+  },
+  {
+    "task_id": "15",
+    "task_description": "Change your user profile name to 'Admin User'.",
+    "task_type": "form",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
-        "dom_extractor": "document.querySelector('.gh-nav-list').innerText",
+        "dom_extractor": "(() => { const label = Array.from(document.querySelectorAll('label')).find(l => l.innerText.trim().includes('Full name')); if (!label) return null; const input = document.getElementById(label.getAttribute('for')) || label.querySelector('input') || label.parentElement.querySelector('input'); return input ? input.value : null; })()",
+        "match_type": "exact",
+        "match_value": "Admin User",
+        "description": "Verify new name is present in the input field."
+      }
+    }
+  },
+  {
+    "task_id": "16",
+    "task_description": "Update the site title to 'Agentic Web' in Settings -> General.",
+    "task_type": "form",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "__GHOST_ADMIN__/settings/general",
+        "dom_extractor": "document.title",
+        "match_type": "contains",
+        "match_value": "Agentic Web",
+        "description": "Verify document title reflects new site title."
+      }
+    }
+  },
+  {
+    "task_id": "17",
+    "task_description": "Update the site description to 'Testing Ghost CMS'.",
+    "task_type": "form",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "__GHOST_ADMIN__/settings/general",
+        "dom_extractor": "document.querySelector('input[name=\"description\"]').value",
+        "match_type": "exact",
+        "match_value": "Testing Ghost CMS",
+        "description": "Verify that the description input contains the new description."
+      }
+    }
+  },
+  {
+    "task_id": "18",
+    "task_description": "Add a new navigation item 'Portfolio' pointing to '/portfolio'.",
+    "task_type": "form",
+    "start_url": "__GHOST_ADMIN__",
+    "require_login": true,
+    "steps": "10",
+    "eval": {
+      "eval_type": ["dom_match"],
+      "dom_match": {
+        "url": "__GHOST_FRONT__",
+        "dom_extractor": "document.querySelector('ul.nav').innerText",
         "match_type": "contains",
         "match_value": "Portfolio",
         "description": "Verify 'Portfolio' appears in the navigation preview or list."
@@ -232,83 +316,20 @@
     }
   },
   {
-    "task_id": "15",
-    "task_description": "Unpublish the post 'My First Post' (Revert to draft).",
-    "task_type": "operation",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["dom_match"],
-      "dom_match": {
-        "url": "last",
-        "dom_extractor": "document.querySelector('.gh-badge-pink').innerText",
-        "match_type": "contains",
-        "match_value": "Draft",
-        "description": "Verify the post status badge says 'Draft'."
-      }
-    }
-  },
-  {
-    "task_id": "16",
-    "task_description": "Change your user profile name to 'Admin User'.",
-    "task_type": "form",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["dom_match"],
-      "dom_match": {
-        "url": "last",
-        "dom_extractor": "(() => { const label = Array.from(document.querySelectorAll('label')).find(l => l.innerText.trim().includes('Full name')); if (!label) return null; const input = document.getElementById(label.getAttribute('for')) || label.querySelector('input') || label.parentElement.querySelector('input'); return input ? input.value : null; })()",
-        "match_type": "exact_match",
-        "match_value": "Admin User",
-        "description": "Verify new name is present in the input field."
-      }
-    }
-  },
-  {
-    "task_id": "17",
-    "task_description": "Search for 'About Us' using the global search.",
-    "task_type": "navigation",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["url_match"],
-      "url_match": {
-        "match_type": "contains",
-        "match_value": "about-us",
-        "description": "Verify URL contains the slug of the searched page."
-      }
-    }
-  },
-  {
-    "task_id": "18",
-    "task_description": "Delete the post 'My First Post'.",
-    "task_type": "operation",
-    "start_url": "__GHOST_ADMIN__",
-    "require_login": true,
-    "eval": {
-      "eval_type": ["url_match"],
-      "url_match": {
-        "match_type": "contains",
-        "match_value": "/posts",
-        "description": "Verify redirection to posts list after deletion."
-      }
-    }
-  },
-  {
     "task_id": "19",
-    "task_description": "Verify site timezone is set to 'UTC' in General Settings (default).",
+    "task_description": "Change site timezone to '(GMT +7:00) Bangkok, Hanoi, Jakarta' in General Settings (default).",
     "task_type": "lookup",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
-        "url": "last",
+        "url": "__GHOST_ADMIN__/settings/general",
         "dom_extractor": "document.body.innerText",
         "match_type": "contains",
-        "match_value": "UTC",
-        "description": "Verify UTC text presence."
+        "match_value": "(GMT +7:00) Bangkok, Hanoi, Jakarta",
+        "description": "Verify timezone text presence."
       }
     }
   },
@@ -318,6 +339,7 @@
     "task_type": "navigation",
     "start_url": "__GHOST_ADMIN__",
     "require_login": true,
+    "steps": "10",
     "eval": {
       "eval_type": ["url_match"],
       "url_match": {
