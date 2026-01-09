@@ -112,10 +112,10 @@
       "eval_type": ["dom_match"],
       "dom_match": {
         "url": "last",
-        "dom_extractor": "document.body.innerText",
-        "match_type": "contains",
-        "match_value": "Tech",
-        "description": "Verify the tag name is visible in the post settings."
+        "dom_extractor": "(() => { const title = document.querySelector('.gh-editor-title')?.value || ''; const tags = Array.from(document.querySelectorAll('#tag-input .ember-power-select-multiple-option')).map(el => el.textContent.trim().replace(/\\s*x$/, '')); return (title === 'My First Post' && tags.includes('Tech')) ? 'True' : 'False'; })()",
+        "match_type": "exact",
+        "match_value": "True",
+        "description": "Verify 'Tech' tag is applied to 'My First Post' via precise DOM selectors."
       }
     }
   },
@@ -289,8 +289,8 @@
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
-        "url": "__GHOST_ADMIN__/settings/general",
-        "dom_extractor": "document.querySelector('input[name=\"description\"]').value",
+        "url": "__GHOST_ADMIN__/#/settings/general",
+        "dom_extractor": "document.querySelector('input[placeholder=\"Site description\"]').value",
         "match_type": "exact",
         "match_value": "Testing Ghost CMS",
         "description": "Verify that the description input contains the new description."
