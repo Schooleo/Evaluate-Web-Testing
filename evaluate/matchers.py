@@ -1,7 +1,7 @@
 import difflib
 from dotenv import load_dotenv
 import os
-import google.generativeai as genai
+# import google.generativeai as genai
 import unicodedata
 
 def exact(value, target):
@@ -33,7 +33,7 @@ def semantic(task_description, value, target, method="llm"):
         if not api_key:
             raise Exception("GOOGLE_API_KEY not found in environment variables")
 
-        genai.configure(api_key=api_key)
+        # genai.configure(api_key=api_key)
         
         prompt = f"""
             You are a helpful evaluator.
@@ -44,16 +44,18 @@ def semantic(task_description, value, target, method="llm"):
             Reply only YES or NO.
         """
         print(f"[semantic] LLM prompt: {prompt}")
-        try:
-            model = genai.GenerativeModel('gemini-2.0-flash')
-            response = model.generate_content(prompt)
-            if response.text.strip().upper() in ["YES", "NO"]:
-                # Trả về True nếu trả lời là YES, False nếu NO
-                print(f"[semantic] LLM response: {response.text.strip()}")
-            return response.text.strip().upper() == "YES"
-        except Exception as e:
-            print(f"[semantic] LLM Error: {e}")
-            return False
+        print("[semantic] google.generativeai usage is commented out/deprecated.")
+        return False
+        # try:
+        #     model = genai.GenerativeModel('gemini-2.0-flash')
+        #     response = model.generate_content(prompt)
+        #     if response.text.strip().upper() in ["YES", "NO"]:
+        #         # Trả về True nếu trả lời là YES, False nếu NO
+        #         print(f"[semantic] LLM response: {response.text.strip()}")
+        #     return response.text.strip().upper() == "YES"
+        # except Exception as e:
+        #     print(f"[semantic] LLM Error: {e}")
+        #     return False
 
     elif method == "fuzzy":
         ratio = difflib.SequenceMatcher(None, value, target).ratio()

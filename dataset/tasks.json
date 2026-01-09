@@ -45,7 +45,7 @@
     "eval": {
       "eval_type": ["dom_match"],
       "dom_match": {
-        "url": "__GHOST_FRONT__",
+        "url": "current",
         "dom_extractor": "document.body.innerText",
         "match_type": "contains",
         "match_value": "My First Post",
